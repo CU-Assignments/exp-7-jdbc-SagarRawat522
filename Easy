@@ -1,0 +1,31 @@
+ Easy Level
+Problem Statement: Create a Java program to connect to a MySQL database and fetch data from a single table Employee with columns EmpID, Name, and Salary.
+java
+import java.sql.*;
+
+public class EasyJDBCExample {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/your_database";
+        String user = "root";
+        String password = "your_password";
+
+        try {
+            // Load driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            // Create connection
+            Connection con = DriverManager.getConnection(url, user, password);
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT EmpID, Name, Salary FROM Employee");
+
+            while (rs.next()) {
+                System.out.println("EmpID: " + rs.getInt("EmpID") +
+                                   ", Name: " + rs.getString("Name") +
+                                   ", Salary: " + rs.getDouble("Salary"));
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
