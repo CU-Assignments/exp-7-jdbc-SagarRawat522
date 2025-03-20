@@ -1,0 +1,134 @@
+// src/model/Student.java
+package model;
+
+public class Student {
+    private int studentID;
+    private String name;
+    private String department;
+    private int marks;
+
+    // Getters and Setters
+    public int getStudentID() { return studentID; }
+    public void setStudentID(int studentID) { this.studentID = studentID; }
+    public String getName() { return name; }
+    public void setName(String name) { this.name = name; }
+    public String getDepartment() { return department; }
+    public void setDepartment(String department) { this.department = department; }
+    public int getMarks() { return marks; }
+    public void setMarks(int marks) { this.marks = marks; }
+}
+2. View - Menu.java
+java
+CopyEdit
+// src/view/Menu.java
+package view;
+import java.util.Scanner;
+
+public class Menu {
+    Scanner sc = new Scanner(System.in);
+
+    public int showMenu() {
+        System.out.println("1. Add Student\n2. Display Students\n3. Update Student Marks\n4. Delete Student\n5. Exit");
+        return sc.nextInt();
+    }
+
+    public Student getStudentDetails() {
+        Student s = new Student();
+        System.out.println("Enter Student ID, Name, Department, Marks:");
+        s.setStudentID(sc.nextInt());
+        s.setName(sc.next());
+        s.setDepartment(sc.next());
+        s.setMarks(sc.nextInt());
+        return s;
+    }
+
+    public int getStudentID() {
+        System.out.println("Enter Student ID:");
+        return sc.nextInt();
+    }
+
+    public int getNewMarks() {
+        System.out.println("Enter new marks:");
+        return sc.nextInt();
+    }
+}
+3. Controller - StudentController.java
+java
+CopyEdit
+// src/controller/StudentController.java
+package controller;
+
+import model.Student;
+import java.sql.*;
+
+public class StudentController {
+    String url = "jdbc:mysql://localhost:3306/your_database";
+    String user = "root";
+    String password = "your_password";
+    Connection con;
+
+    public StudentController() throws Exception {
+        Class.forName("com.mysql.cj.jdbc.Driver");
+        con = DriverManager.getConnection(url, user, password);
+    }
+
+    public void addStudent(Student s) throws SQLException {
+        PreparedStatement ps = con.prepareStatement("INSERT INTO Student VALUES (?, ?, ?, ?)");
+        ps.setInt(1, s.getStudentID());
+        ps.setString(2, s.getName());
+        ps.setString(3, s.getDepartment());
+        ps.setInt(4, s.getMarks());
+        ps.executeUpdate();
+    }
+
+    public void displayStudents() throws SQLException {
+        ResultSet rs = con.createStatement().executeQuery("SELECT * FROM Student");
+        while (rs.next()) {
+            System.out.println(rs.getInt(1) + " " + rs.getString(2) + " " + rs.getString(3) + " " + rs.getInt(4));
+        }
+    }
+
+    public void updateMarks(int id, int marks) throws SQLException {
+        PreparedStatement ps = con.prepareStatement("UPDATE Student SET Marks=? WHERE StudentID=?");
+        ps.setInt(1, marks);
+        ps.setInt(2, id);
+        ps.executeUpdate();
+    }
+
+    public void deleteStudent(int id) throws SQLException {
+        PreparedStatement ps = con.prepareStatement("DELETE FROM Student WHERE StudentID=?");
+        ps.setInt(1, id);
+        ps.executeUpdate();
+    }
+}
+4. Main.java
+
+// src/Main.java
+import model.Student;
+import view.Menu;
+import controller.StudentController;
+
+public class Main {
+    public static void main(String[] args) throws Exception {
+        StudentController controller = new StudentController();
+        Menu menu = new Menu();
+        int choice;
+        do {
+            choice = menu.showMenu();
+            switch (choice) {
+                case 1:
+                    controller.addStudent(menu.getStudentDetails());
+                    break;
+                case 2:
+                    controller.displayStudents();
+                    break;
+                case 3:
+                    controller.updateMarks(menu.getStudentID(), menu.getNewMarks());
+                    break;
+                case 4:
+                    controller.deleteStudent(menu.getStudentID());
+                    break;
+            }
+        } while (choice != 5);
+    }
+}
