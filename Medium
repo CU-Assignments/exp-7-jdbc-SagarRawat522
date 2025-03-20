@@ -1,0 +1,104 @@
+: Create a Java program to connect to a MySQL database and fetch data from a single table Employee with columns EmpID, Name, and Salary.
+java
+import java.sql.*;
+
+public class EasyJDBCExample {
+    public static void main(String[] args) {
+        String url = "jdbc:mysql://localhost:3306/your_database";
+        String user = "root";
+        String password = "your_password";
+
+        try {
+            // Load driver
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            // Create connection
+            Connection con = DriverManager.getConnection(url, user, password);
+            Statement stmt = con.createStatement();
+            ResultSet rs = stmt.executeQuery("SELECT EmpID, Name, Salary FROM Employee");
+
+            while (rs.next()) {
+                System.out.println("EmpID: " + rs.getInt("EmpID") +
+                                   ", Name: " + rs.getString("Name") +
+                                   ", Salary: " + rs.getDouble("Salary"));
+            }
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+Medium Level
+Problem Statement: Perform CRUD operations on Product table with ProductID, ProductName, Price, and Quantity.
+
+CODE:
+import java.sql.*;
+import java.util.Scanner;
+
+public class MediumJDBCExample {
+    static String url = "jdbc:mysql://localhost:3306/your_database";
+    static String user = "root";
+    static String password = "your_password";
+
+    public static void main(String[] args) {
+        try (Scanner sc = new Scanner(System.in)) {
+            Class.forName("com.mysql.cj.jdbc.Driver");
+            Connection con = DriverManager.getConnection(url, user, password);
+            int choice;
+            do {
+                System.out.println("1. Insert\n2. Read\n3. Update\n4. Delete\n5. Exit");
+                choice = sc.nextInt();
+                switch (choice) {
+                    case 1:
+                        System.out.println("Enter ProductID, Name, Price, Quantity:");
+                        int id = sc.nextInt();
+                        String name = sc.next();
+                        double price = sc.nextDouble();
+                        int qty = sc.nextInt();
+                        PreparedStatement ps1 = con.prepareStatement("INSERT INTO Product VALUES (?, ?, ?, ?)");
+                        ps1.setInt(1, id);
+                        ps1.setString(2, name);
+                        ps1.setDouble(3, price);
+                        ps1.setInt(4, qty);
+                        ps1.executeUpdate();
+                        break;
+                    case 2:
+                        ResultSet rs = con.createStatement().executeQuery("SELECT * FROM Product");
+                        while (rs.next()) {
+                            System.out.println(rs.getInt(1) + " " + rs.getString(2) + " " + rs.getDouble(3) + " " + rs.getInt(4));
+                        }
+                        break;
+                    case 3:
+                        System.out.println("Enter ProductID and new Quantity:");
+                        id = sc.nextInt();
+                        qty = sc.nextInt();
+                        PreparedStatement ps2 = con.prepareStatement("UPDATE Product SET Quantity=? WHERE ProductID=?");
+                        ps2.setInt(1, qty);
+                        ps2.setInt(2, id);
+                        ps2.executeUpdate();
+                        break;
+                    case 4:
+                        System.out.println("Enter ProductID to delete:");
+                        id = sc.nextInt();
+                        PreparedStatement ps3 = con.prepareStatement("DELETE FROM Product WHERE ProductID=?");
+                        ps3.setInt(1, id);
+                        ps3.executeUpdate();
+                        break;
+                }
+            } while (choice != 5);
+            con.close();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
